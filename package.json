@@ -33,6 +33,7 @@
     "esprima": "^2.7.2",
     "espurify": "^1.5.1",
     "estraverse": "^4.2.0",
+    "gettemporaryfilepath": "0.0.1",
     "glob": "^7.0.3",
     "html-minifier": "^2.1.2",
     "imageinfo": "1.0.4",

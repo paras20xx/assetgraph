@@ -14,7 +14,7 @@ describe('transforms/flattenRequireJs', function () {
                 expect(assetGraph, 'to contain relation', 'HtmlRequireJsMain');
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 4);
@@ -135,10 +135,7 @@ describe('transforms/flattenRequireJs', function () {
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
-            .queue(function (assetGraph) {
-                expect(assetGraph, 'to contain assets', 'JavaScript', 4);
-            })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 4);
