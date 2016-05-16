@@ -10,9 +10,7 @@ describe('transforms/flattenRequireJs', function () {
             .loadAssets('app.html')
             .populate()
             .queue(function (assetGraph) {
-                expect(assetGraph, 'to contain assets', 6);
-                expect(assetGraph, 'to contain relation', 'HtmlRequireJsMain');
-                expect(assetGraph, 'to contain assets', 'JavaScript', 5);
+                expect(assetGraph, 'to contain assets', 'JavaScript', 1);
             })
             .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
