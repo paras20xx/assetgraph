@@ -15,31 +15,28 @@ describe('transforms/flattenRequireJs', function () {
             .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
-                expect(htmlScripts, 'to have length', 4);
-                expect(htmlScripts[0].href, 'to equal', 'scripts/require-jquery.js');
+                expect(htmlScripts, 'to have length', 2);
+                expect(htmlScripts[0].href, 'to equal', 'scripts/require.js');
                 expect(htmlScripts[1].to, 'to have the same AST as', function () {
                     /* eslint-disable */
-                    $.fn.alpha = function () {
+                    var jquery = {};
+                    define('jquery', function () {}),
+                    $.fn.alpha = function ()  {
                         return this.append('<p>Alpha is Go!</p>');
-                    };
-                    define('jquery.alpha', function () {});
-                    /* eslint-enable */
-                });
-                expect(htmlScripts[2].to.parseTree, 'to have the same AST as', function () {
-                    /* eslint-disable */
+                    },
+                    define('jquery.alpha', function () {}),
                     $.fn.beta = function () {
                         return this.append('<p>Beta is Go!</p>');
-                    };
-                    define('jquery.beta', function () {});
-                    /* eslint-enable */
-                });
-                expect(htmlScripts[3].to.parseTree, 'to have the same AST as', function () {
-                    require(['jquery', 'jquery.alpha', 'jquery.beta'], function ($) {
-                        $(function () {
-                            $('body').alpha().beta();
+                    },
+                    define('jquery.beta', function () {}),
+                    require(['jquery', 'jquery.alpha', 'jquery.beta'], function (n) {
+                        n(function () {
+                            n('body').alpha().beta();
                         });
-                    });
-                    define('main', function () {});
+                    }),
+                    define('main',function () {});
+                    //# sourceMappingURL=11642-6076-1yd87nf.js.map
+                    /* eslint-enable */
                 });
             })
             .run(done);
