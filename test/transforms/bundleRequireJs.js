@@ -3,9 +3,9 @@ var expect = require('../unexpected-with-plugins'),
     _ = require('lodash'),
     AssetGraph = require('../../lib');
 
-describe('transforms/flattenRequireJs', function () {
+describe('transforms/bundleRequireJs', function () {
     it('should handle the jquery-require-sample test case', function () {
-        return new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/jquery-require-sample/webapp/'})
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/jquery-require-sample/webapp/'})
             .registerRequireJsConfig()
             .loadAssets('app.html')
             .populate()
@@ -41,7 +41,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a text dependency', function () {
-        return new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/textDependency/'})
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/textDependency/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -55,14 +55,14 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a module that has multiple incoming JavaScriptAmd* relations', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/multipleIncoming/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncoming/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 5);
@@ -94,7 +94,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a case with a module that has multiple incoming JavaScriptAmd* relations', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/multipleIncoming2/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncoming2/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -124,7 +124,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a module that is included via a script tag and a JavaScriptAmdRequire relation', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/nonOrphanedJavaScript/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonOrphanedJavaScript/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -132,7 +132,7 @@ describe('transforms/flattenRequireJs', function () {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 3);
                 expect(assetGraph, 'to contain relations', 'HtmlScript', 2);
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 4);
@@ -154,14 +154,14 @@ describe('transforms/flattenRequireJs', function () {
 
 
     it('should handle a test case that uses require(...) in a regular <script>', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/withoutHtmlRequireJsMain/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/withoutHtmlRequireJsMain/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 5);
@@ -192,7 +192,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case that uses require(...) to fetch a css file', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/cssRequire/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/cssRequire/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -203,7 +203,7 @@ describe('transforms/flattenRequireJs', function () {
                 expect(assetGraph, 'to contain relation', 'CssImage');
                 expect(assetGraph, 'to contain asset', 'Png');
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain relation', 'HtmlStyle');
                 expect(assetGraph, 'to contain asset', 'Css');
@@ -214,7 +214,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case that includes a GETSTATICURL relation', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/withOneGetStaticUrl/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/withOneGetStaticUrl/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -224,7 +224,7 @@ describe('transforms/flattenRequireJs', function () {
                 expect(assetGraph, 'to contain relation', 'StaticUrlMapEntry');
                 expect(assetGraph, 'to contain asset', 'Png');
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain asset', 'Png');
 
@@ -258,11 +258,11 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a umd test case', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/umd/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umd/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 3);
@@ -285,7 +285,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle the umd test case without requirejs', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/umdWithoutRequire/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdWithoutRequire/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -294,7 +294,7 @@ describe('transforms/flattenRequireJs', function () {
                     url: /backbone.localStorage.js$/
                 })[0].text;
             })
-            .flattenRequireJs({type: 'Html', isFragment: false})
+            .bundleRequireJs({type: 'Html', isFragment: false})
             .queue(function (assetGraph) {
                 var scriptRelations = assetGraph.findRelations({
                     to: {
@@ -310,11 +310,11 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a umd test case where the wrapper has a dependency in the define call', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/umdWithDependency/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdWithDependency/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 4);
@@ -340,11 +340,11 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a non-umd test case', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/nonUmd/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonUmd/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 3);
@@ -377,11 +377,11 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with multiple Html files depending on the same modules', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/multipleHtmls/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleHtmls/'})
             .registerRequireJsConfig()
             .loadAssets('*.html')
             .populate()
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript', from: {url: /\/index1\.html$/}});
                 expect(htmlScripts, 'to have length', 4);
@@ -425,11 +425,11 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case using the less! plugin', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/lessPlugin/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/lessPlugin/'})
             .registerRequireJsConfig()
             .loadAssets('index*.html')
             .populate()
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 expect(_.map(assetGraph.findRelations({type: 'HtmlStyle', from: {url: /\/index\.html$/}}), 'href'), 'to equal', [
                     'b.less',
@@ -447,7 +447,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a shims config', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/shim/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/shim/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .queue(function (assetGraph) {
@@ -460,7 +460,7 @@ describe('transforms/flattenRequireJs', function () {
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain relations', 'JavaScriptShimRequire', 2);
             })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 7);
@@ -497,7 +497,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a non-string items in the require array', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/nonString/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonString/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -508,7 +508,7 @@ describe('transforms/flattenRequireJs', function () {
                     assetGraph.root + 'something.js'
                 ]);
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
             })
@@ -516,7 +516,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with relative dependencies', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/relativeDependencies/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/relativeDependencies/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -529,7 +529,7 @@ describe('transforms/flattenRequireJs', function () {
                     assetGraph.root + 'subdir/subsubdir/quux.js'
                 ]);
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 5);
@@ -564,7 +564,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a relative dependencies once again', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/relativeDependencies/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/relativeDependencies/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -580,7 +580,7 @@ describe('transforms/flattenRequireJs', function () {
                 var quuxJs = assetGraph.findAssets({url: /\/quux\.js/})[0];
                 quuxJs.url = quuxJs.url.replace(/subsubdir/, 'othersubdir');
             })
-            .flattenRequireJs({type: 'Html'})
+            .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 5);
@@ -611,7 +611,7 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a paths config that points jquery at a CDN', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/httpPath/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/httpPath/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -626,14 +626,14 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a root-relative require alongside a non-root-relative require to the same file', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/rootRelative/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/rootRelative/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain asset', 'Text');
             })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 3);
@@ -652,14 +652,14 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a paths config that maps theLibrary to 3rdparty/theLibrary', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/paths/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/paths/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
             })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 5);
@@ -697,14 +697,14 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with document-relative dependencies', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/documentRelativeDependencies/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/documentRelativeDependencies/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', {type: 'JavaScript', isLoaded: true}, 5);
             })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 5);
@@ -735,14 +735,14 @@ describe('transforms/flattenRequireJs', function () {
     });
 
     it('should handle a test case with a data-main that only contains a define (#127)', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/issue127/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/issue127/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 2);
             })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
                 expect(htmlScripts, 'to have length', 2);
@@ -759,10 +759,10 @@ describe('transforms/flattenRequireJs', function () {
 
     /*
     // This is a common mistake that require.js tolerates, although it does have the side effect that the module definition
-    // function is run twice. This test case asserts that flattenRequireJs emits an error as the build will be broken.
+    // function is run twice. This test case asserts that bundleRequireJs emits an error as the build will be broken.
     it('should handle a test case with a module that is referred to both with and without the .js extension', function (done) {
         var warns = [];
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/multipleIncomingWithAndWithoutDotJsSuffix/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncomingWithAndWithoutDotJsSuffix/'})
             .on('warn', function (err) {
                 warns.push(err);
             })
@@ -773,7 +773,7 @@ describe('transforms/flattenRequireJs', function () {
                 expect(warns, 'to have length', 0);
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
             })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 expect(warns, 'This test has failed once in a random manner. If you see this again expect it to be a race condition', 'to be ok');
                 expect(warns, 'to have length', 1);
@@ -783,13 +783,11 @@ describe('transforms/flattenRequireJs', function () {
     });
     */
     it('should handle a test case with a umdish factory pattern', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/umdishBackboneLocalstorage/'})
+        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdishBackboneLocalstorage/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
-            .queue(function (assetGraph) {
-            })
-            .flattenRequireJs()
+            .bundleRequireJs()
             .queue(function (assetGraph) {
                 expect(assetGraph.findAssets({fileName: /backbone-localstorage/}).pop().parseTree, 'to have the same AST as', function () {
                     (function (root, factory) {
