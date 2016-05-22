@@ -4,8 +4,8 @@ var expect = require('../unexpected-with-plugins'),
     AssetGraph = require('../../lib');
 
 describe('transforms/flattenRequireJs', function () {
-    it('should handle the jquery-require-sample test case', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/jquery-require-sample/webapp/'})
+    it('should handle the jquery-require-sample test case', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/jquery-require-sample/webapp/'})
             .registerRequireJsConfig()
             .loadAssets('app.html')
             .populate()
@@ -35,55 +35,23 @@ describe('transforms/flattenRequireJs', function () {
                         });
                     }),
                     define('main',function () {});
-                    //# sourceMappingURL=11642-6076-1yd87nf.js.map
                     /* eslint-enable */
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a text dependency', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/textDependency/'})
+    it('should handle a test case with a text dependency', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/flattenRequireJs/textDependency/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
-            .queue(function (assetGraph) {
-                expect(assetGraph, 'to contain assets', 'JavaScript', 2);
-                expect(assetGraph, 'to contain asset', {type: 'Text', isInline: false});
-            })
-            .flattenRequireJs({type: 'Html'})
-            .queue(function (assetGraph) {
-                expect(assetGraph, 'to contain relation', {type: 'JavaScriptGetText', to: {url: /\/myTextFile\.txt$/}});
-
-                var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
-                expect(htmlScripts, 'to have length', 3);
-                expect(htmlScripts[0].href, 'to equal', 'require.js');
-                expect(htmlScripts[1].to.parseTree, 'to have the same AST as', function () {
-                    define('myTextFile.txt', GETTEXT('myTextFile.txt'));
-                });
-                expect(htmlScripts[2].to.parseTree, 'to have the same AST as', function () {
-                    require(['myTextFile.txt'], function (contentsOfMyTextFile) {
-                        alert(contentsOfMyTextFile + ', yay!');
-                    });
-                    define('main', function () {});
-                });
-            })
-            .inlineRelations({type: 'JavaScriptGetText'})
+            .bundleRequireJs({type: 'Html'})
+            .populate({from: { type: 'JavaScript'}})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
-                expect(htmlScripts, 'to have length', 3);
+                expect(htmlScripts, 'to have length', 2);
                 expect(htmlScripts[0].href, 'to equal', 'require.js');
-                expect(htmlScripts[1].to.parseTree, 'to have the same AST as', function () {
-                    define('myTextFile.txt', 'THE TEXT!\n');
-                });
-                expect(htmlScripts[2].to.parseTree, 'to have the same AST as', function () {
-                    require(['myTextFile.txt'], function (contentsOfMyTextFile) {
-                        alert(contentsOfMyTextFile + ', yay!');
-                    });
-                    define('main', function () {});
-                });
-            })
-            .run(done);
+            });
     });
 
     it('should handle a test case with a module that has multiple incoming JavaScriptAmd* relations', function (done) {
