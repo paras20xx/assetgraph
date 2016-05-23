@@ -54,77 +54,63 @@ describe('transforms/bundleRequireJs', function () {
             });
     });
 
-    it('should handle a test case with a module that has multiple incoming JavaScriptAmd* relations', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncoming/'})
+    it('should handle a test case with a module that has multiple define calls pointing at it', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncoming/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
-                expect(assetGraph, 'to contain assets', 'JavaScript', 5);
+                expect(assetGraph, 'to contain asset', 'JavaScript');
             })
             .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
-                expect(htmlScripts, 'to have length', 5);
+                expect(htmlScripts, 'to have length', 2);
                 expect(htmlScripts[0].href, 'to equal', 'require.js');
                 expect(htmlScripts[1].to.parseTree, 'to have the same AST as', function () {
-                    define('popular', function () {
-                        alert('I\'m a popular helper module');
-                        return 'foo';
-                    });
-                });
-                expect(htmlScripts[2].to.parseTree, 'to have the same AST as', function () {
-                    define('module1', ['popular'], function () {
+                    define('popular', [], function () {
+                        return alert('I\'m a popular helper module'), 'foo';
+                    }), define('module1', ['popular'], function () {
                         return 'module1';
-                    });
-                });
-                expect(htmlScripts[3].to.parseTree, 'to have the same AST as', function () {
-                    define('module2', ['popular'], function () {
+                    }), define('module2', ['popular'], function () {
                         return 'module2';
-                    });
-                });
-                expect(htmlScripts[4].to.parseTree, 'to have the same AST as', function () {
-                    require(['module1', 'module2'], function (module1, module2) {
+                    }), require([
+                        'module1',
+                        'module2'
+                    ], function (e, u) {
                         alert('Got it all!');
-                    });
-                    define('main', function () {});
+                    }), define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a case with a module that has multiple incoming JavaScriptAmd* relations', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncoming2/'})
+    it('should handle another case with a module that has multiple define calls pointing at it', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleIncoming2/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 var htmlScripts = assetGraph.findRelations({type: 'HtmlScript'});
-                expect(htmlScripts, 'to have length', 4);
+                expect(htmlScripts, 'to have length', 2);
                 expect(htmlScripts[0].href, 'to equal', 'require.js');
                 expect(htmlScripts[1].to.parseTree, 'to have the same AST as', function () {
                     define('module2', [], function () {
                         return 'module2';
-                    });
-                });
-                expect(htmlScripts[2].to.parseTree, 'to have the same AST as', function () {
-                    define('module1', ['module2'], function () {
+                    }), define('module1', ['module2'], function () {
                         return 'module1';
-                    });
-                });
-                expect(htmlScripts[3].to.parseTree, 'to have the same AST as', function () {
-                    require(['module1', 'module2'], function (module1, module2) {
+                    }), require([
+                        'module1',
+                        'module2'
+                    ], function (e, n) {
                         alert('Got it all!');
-                    });
-                    define('main', function () {});
+                    }), define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a module that is included via a script tag and a JavaScriptAmdRequire relation', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonOrphanedJavaScript/'})
+    it('should handle a test case with a module that is included via a script tag and a JavaScriptAmdRequire relation', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonOrphanedJavaScript/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -148,13 +134,12 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-
-    it('should handle a test case that uses require(...) in a regular <script>', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/withoutHtmlRequireJsMain/'})
+    // No longer supported
+    it.skip('should handle a test case that uses require(...) in a regular <script>', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/withoutHtmlRequireJsMain/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -187,34 +172,29 @@ describe('transforms/bundleRequireJs', function () {
                         alert('Got it all!');
                     });
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case that uses require(...) to fetch a css file', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/cssRequire/'})
+    it('should handle a test case that uses require(...) to fetch a css file', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/cssRequire/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 2);
-                expect(assetGraph, 'to contain relation', 'JavaScriptAmdRequire');
-                expect(assetGraph, 'to contain asset', 'Css');
-                expect(assetGraph, 'to contain relation', 'CssImage');
-                expect(assetGraph, 'to contain asset', 'Png');
             })
             .bundleRequireJs({type: 'Html'})
+            .populate()
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain relation', 'HtmlStyle');
                 expect(assetGraph, 'to contain asset', 'Css');
                 expect(assetGraph, 'to contain relation', 'CssImage');
                 expect(assetGraph, 'to contain asset', 'Png');
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case that includes a GETSTATICURL relation', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/withOneGetStaticUrl/'})
+    it('should handle a test case that includes a GETSTATICURL relation', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/withOneGetStaticUrl/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -253,12 +233,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a umd test case', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umd/'})
+    it('should handle a umd test case', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umd/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -280,12 +259,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle the umd test case without requirejs', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdWithoutRequire/'})
+    it('should handle the umd test case without requirejs', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdWithoutRequire/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -305,12 +283,11 @@ describe('transforms/bundleRequireJs', function () {
 
                 var relations = assetGraph.findRelations({type: 'JavaScriptAmdDefine'});
                 expect(relations, 'to have length', 0);
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a umd test case where the wrapper has a dependency in the define call', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdWithDependency/'})
+    it('should handle a umd test case where the wrapper has a dependency in the define call', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdWithDependency/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -335,12 +312,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a non-umd test case', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonUmd/'})
+    it('should handle a non-umd test case', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonUmd/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -372,12 +348,11 @@ describe('transforms/bundleRequireJs', function () {
                     /* eslint-enable */
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with multiple Html files depending on the same modules', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleHtmls/'})
+    it('should handle a test case with multiple Html files depending on the same modules', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/multipleHtmls/'})
             .registerRequireJsConfig()
             .loadAssets('*.html')
             .populate()
@@ -420,12 +395,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('app2', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case using the less! plugin', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/lessPlugin/'})
+    it('should handle a test case using the less! plugin', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/lessPlugin/'})
             .registerRequireJsConfig()
             .loadAssets('index*.html')
             .populate()
@@ -442,12 +416,11 @@ describe('transforms/bundleRequireJs', function () {
                     'a.less',
                     'c.less'
                 ]);
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a shims config', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/shim/'})
+    it('should handle a test case with a shims config', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/shim/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .queue(function (assetGraph) {
@@ -492,12 +465,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a non-string items in the require array', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonString/'})
+    it('should handle a test case with a non-string items in the require array', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/nonString/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -511,12 +483,11 @@ describe('transforms/bundleRequireJs', function () {
             .bundleRequireJs({type: 'Html'})
             .queue(function (assetGraph) {
                 expect(assetGraph, 'to contain assets', 'JavaScript', 5);
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with relative dependencies', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/relativeDependencies/'})
+    it('should handle a test case with relative dependencies', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/relativeDependencies/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -559,12 +530,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a relative dependencies once again', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/relativeDependencies/'})
+    it('should handle a test case with a relative dependencies once again', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/relativeDependencies/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -606,12 +576,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a paths config that points jquery at a CDN', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/httpPath/'})
+    it('should handle a test case with a paths config that points jquery at a CDN', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/httpPath/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -621,12 +590,11 @@ describe('transforms/bundleRequireJs', function () {
                     assetGraph.root + 'require.js',
                     'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'
                 ]);
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a root-relative require alongside a non-root-relative require to the same file', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/rootRelative/'})
+    it('should handle a test case with a root-relative require alongside a non-root-relative require to the same file', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/rootRelative/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -647,12 +615,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a paths config that maps theLibrary to 3rdparty/theLibrary', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/paths/'})
+    it('should handle a test case with a paths config that maps theLibrary to 3rdparty/theLibrary', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/paths/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -692,12 +659,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with document-relative dependencies', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/documentRelativeDependencies/'})
+    it('should handle a test case with document-relative dependencies', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/documentRelativeDependencies/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -730,12 +696,11 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     define('main', function () {});
                 });
-            })
-            .run(done);
+            });
     });
 
-    it('should handle a test case with a data-main that only contains a define (#127)', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/issue127/'})
+    it('should handle a test case with a data-main that only contains a define (#127)', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/issue127/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -753,8 +718,7 @@ describe('transforms/bundleRequireJs', function () {
                     });
                     require(['main']);
                 });
-            })
-            .run(done);
+            });
     });
 
     /*
@@ -778,12 +742,11 @@ describe('transforms/bundleRequireJs', function () {
                 expect(warns, 'This test has failed once in a random manner. If you see this again expect it to be a race condition', 'to be ok');
                 expect(warns, 'to have length', 1);
                 expect(warns[0].message.replace(/^file:\/\/[^\s]* /, ''), 'is referred to as both popular and popular.js, 'to equal', please omit the .js extension in define/require');
-            })
-            .run(done);
+            });
     });
     */
-    it('should handle a test case with a umdish factory pattern', function (done) {
-        new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdishBackboneLocalstorage/'})
+    it('should handle a test case with a umdish factory pattern', function () {
+        return new AssetGraph({root: __dirname + '/../../testdata/transforms/bundleRequireJs/umdishBackboneLocalstorage/'})
             .registerRequireJsConfig()
             .loadAssets('index.html')
             .populate()
@@ -807,7 +770,6 @@ describe('transforms/bundleRequireJs', function () {
                         return 'LOCALSTORAGE';
                     });
                 });
-            })
-            .run(done);
+            });
     });
 });
